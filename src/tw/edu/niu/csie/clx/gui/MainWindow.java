@@ -100,7 +100,9 @@ public class MainWindow extends JFrame implements Client.EventHandler {
             this.setMessage("短網址建立失敗!");
             return;
         }
-        this.setMessage("控制網址 : <br/>" + response);
+        String text = String.format("<img src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=%s'><br/>", response);
+        text += "控制網址 : <br/>" + response;
+        this.setMessage(text);
         System.out.println(id);
     }
 
