@@ -2,12 +2,12 @@ package tw.edu.niu.csie.clx.network;
 
 import com.google.gson.Gson;
 import org.java_websocket.handshake.ServerHandshake;
+import tw.edu.niu.csie.clx.main.Main;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Client implements WebSocketManager.WebSocketHandler {
-    private static String SERVER_URL = "ws://localhost:3000/ws";
 
     private static int STATE_INITIAL = -1;
     private static int STATE_WAIT_ID = 0;
@@ -20,8 +20,11 @@ public class Client implements WebSocketManager.WebSocketHandler {
     private Gson gson = new Gson();
     private int currentState = STATE_INITIAL;
 
-    public Client() throws URISyntaxException {
-        manager = new WebSocketManager(new URI(SERVER_URL), this);
+    private EventHandler handler;
+
+    public Client(EventHandler handler) throws URISyntaxException {
+        manager = new WebSocketManager(new URI(Main.WS_SERVER_URL), this);
+        this.handler = handler;
     }
 
     public void connect() {
@@ -60,12 +63,14 @@ public class Client implements WebSocketManager.WebSocketHandler {
         } else if(currentState == STATE_WAIT_ROLE && remoteInfo.getType().equals("set")) {
             if(remoteInfo.getMessage().equals("ok")) {
                 System.out.println("READY!");
-                System.out.println("ID : " + this.id);
+//                System.out.println("ID : " + this.id);
+                handler.onIdReady(this.id);
                 this.currentState = STATE_WAIT_CONTROL;
             }
         } else if(currentState == STATE_WAIT_CONTROL) {
             if(remoteInfo.getType().equals("set")) {
                 this.currentState = STATE_START;
+                handler.onReady();
             }
         } else if(currentState == STATE_START) {
             if(remoteInfo.getType().equals("control")) {
@@ -80,8 +85,12 @@ public class Client implements WebSocketManager.WebSocketHandler {
     }
 
     private boolean processControl(String command) {
-        System.out.println(command);
-        return true;
+//        System.out.println(command);
+        return handler.onCommand(command);
+    }
+
+    public void close() {
+        manager.close();
     }
 
     @Override
@@ -92,5 +101,11 @@ public class Client implements WebSocketManager.WebSocketHandler {
     @Override
     public void onOpen(ServerHandshake handshakeData) {
 
+    }
+
+    public interface EventHandler {
+        boolean onCommand(String command);
+        void onIdReady(String id);
+        void onReady();
     }
 }
