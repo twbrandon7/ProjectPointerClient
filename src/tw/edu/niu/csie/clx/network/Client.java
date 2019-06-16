@@ -42,6 +42,10 @@ public class Client implements WebSocketManager.WebSocketHandler {
     public void onMessage(String message) {
         RemoteInfo remoteInfo = gson.fromJson(message, RemoteInfo.class);
 
+        if(remoteInfo.getType().equals("keepalive")) {
+            return;
+        }
+
         if(currentState == STATE_INITIAL) {
             this.currentState = STATE_WAIT_ID;
             if(remoteInfo.getType().equals("start") && remoteInfo.getMessage().equals("hello")) {
@@ -95,7 +99,7 @@ public class Client implements WebSocketManager.WebSocketHandler {
 
     @Override
     public void onClose(int code, String reason, boolean remote) {
-
+        this.handler.onClose(code, reason, remote);
     }
 
     @Override
@@ -107,5 +111,6 @@ public class Client implements WebSocketManager.WebSocketHandler {
         boolean onCommand(String command);
         void onIdReady(String id);
         void onReady();
+        void onClose(int code, String reason, boolean remote);
     }
 }

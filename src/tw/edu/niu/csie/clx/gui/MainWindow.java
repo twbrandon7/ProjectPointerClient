@@ -6,6 +6,8 @@ import tw.edu.niu.csie.clx.network.Connection;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -35,6 +37,7 @@ public class MainWindow extends JFrame implements Client.EventHandler {
             public void windowClosing(WindowEvent e) {
                 MainWindow.this.dispose();
                 MainWindow.this.client.close();
+                System.exit(0);
             }
         });
 
@@ -65,7 +68,27 @@ public class MainWindow extends JFrame implements Client.EventHandler {
 
     @Override
     public boolean onCommand(String command) {
+        if(command.equals("UP")) {
+            simulateKey(KeyEvent.VK_UP);
+        } else if(command.equals("DOWN")) {
+            simulateKey(KeyEvent.VK_DOWN);
+        } else {
+            return false;
+        }
         return true;
+    }
+
+    private void simulateKey(int keyCode) {
+        try {
+            Robot robot = new Robot();
+
+            // Simulate a key press
+            robot.keyPress(keyCode);
+            robot.keyRelease(keyCode);
+
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -98,5 +121,10 @@ public class MainWindow extends JFrame implements Client.EventHandler {
                 }
             }
         }, 0, 1000);
+    }
+
+    @Override
+    public void onClose(int code, String reason, boolean remote) {
+        setMessage("伺服器連線中斷!");
     }
 }

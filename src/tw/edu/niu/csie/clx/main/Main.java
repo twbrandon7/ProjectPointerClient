@@ -10,8 +10,8 @@ import java.net.URISyntaxException;
 
 public class Main {
 
-    public static final String WS_SERVER_URL = "ws://localhost:3000/ws";
-    public static final String SERVER_BASE_URL = "http://localhost:3000/control/";
+    public static final String WS_SERVER_URL = "ws://project-rmc.herokuapp.com/ws";
+    public static final String SERVER_BASE_URL = "https://project-rmc.herokuapp.com/control/";
 
     public static void main(String[] args) throws URISyntaxException {
         new MainWindow();
